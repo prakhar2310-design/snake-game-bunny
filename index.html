@@ -370,6 +370,22 @@
   const btnSlower  = document.getElementById('btn-slower');
   const btnFaster  = document.getElementById('btn-faster');
 
+  // Update instruction text based on device type
+  function updateInstructionText() {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      overlayM.textContent = 'Use swipe or D-pad buttons to move';
+    } else {
+      overlayM.textContent = 'Use arrow keys or WASD to move';
+    }
+  }
+
+  // Set initial instruction text
+  updateInstructionText();
+
+  // Update instruction text when window resizes
+  window.addEventListener('resize', updateInstructionText);
+
   best = 0;
 
   // Speed levels: [label, interval ms] — lower ms = faster
