@@ -577,7 +577,10 @@
     finalS.textContent = score;
     btn.textContent = 'Play Again';
     btn.style.display = '';
-    document.getElementById('grid-size-picker').style.display = 'flex';
+    // Only show grid size picker on desktop
+    if (window.innerWidth > 768) {
+      document.getElementById('grid-size-picker').style.display = 'flex';
+    }
     overlay.style.display = 'flex';
   }
 
@@ -625,7 +628,10 @@
         document.body.style.overflow = 'hidden';
         overlay.style.display = 'none';
         btn.style.display = '';
-        document.getElementById('grid-size-picker').style.display = 'flex';
+        // Only show grid size picker on desktop
+        if (window.innerWidth > 768) {
+          document.getElementById('grid-size-picker').style.display = 'flex';
+        }
       }
       return;
     }
