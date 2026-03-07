@@ -317,6 +317,13 @@
 
   let bunnyCount = 4;
 
+  // Power-up bunny mechanics state
+  let bunnyPowerUpActive = false;
+  let bunnyPowerUpStartTime = 0;
+  let bunnyPowerUpDuration = 10000; // 10 seconds in milliseconds
+  let originalSpeedIndex = 2; // Store original speed
+  let snakeColorOverride = null; // Store override color
+
   const scoreEl    = document.getElementById('score');
   const bestEl     = document.getElementById('best');
   const overlay    = document.getElementById('overlay');
@@ -385,6 +392,69 @@
   btnFewerBunnies.addEventListener('click', () => changeBunnyCount(-1));
   btnMoreBunnies.addEventListener('click',  () => changeBunnyCount(+1));
 
+  // Power-up bunny helper functions
+  function activateBunnyPowerUp(bunnyIndex) {
+    // Consume the bunny and respawn it
+    bunnies[bunnyIndex] = randomFreeCell();
+
+    // Activate power-up
+    bunnyPowerUpActive = true;
+    bunnyPowerUpStartTime = Date.now();
+    originalSpeedIndex = speedIndex;
+
+    // Change snake color to random color
+    snakeColorOverride = getRandomSnakeColor();
+
+    // Slow down the snake immediately
+    applySpeedSlow();
+  }
+
+  function applySpeedSlow() {
+    // Reduce speed by 2 levels (but stay within bounds)
+    // Note: Lower speedIndex = slower speed (higher interval)
+    const slowedIndex = Math.max(speedIndex - 2, 0);
+    speedIndex = slowedIndex;
+    applySpeed();
+  }
+
+  function applySpeedRecovery(progress) {
+    // progress: 0 to 1 (0 = fully slow, 1 = back to original)
+    // Gradually transition from slowed speed back to original
+    // Note: Lower speedIndex = slower speed
+    const slowedIndex = Math.max(originalSpeedIndex - 2, 0);
+    const newIndex = slowedIndex + (progress * 2);
+    speedIndex = Math.round(newIndex);
+    speedIndex = Math.max(0, Math.min(speedIndex, SPEEDS.length - 1));
+    applySpeed();
+  }
+
+  function getRandomSnakeColor() {
+    const colors = [
+      '#FF6B6B', // Red
+      '#4ECDC4', // Teal
+      '#FFE66D', // Yellow
+      '#95E1D3', // Mint
+      '#F38181', // Pink
+      '#AA96DA', // Purple
+      '#FCBAD3', // Light Pink
+      '#A8D8EA', // Light Blue
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function adjustColorBrightness(color, percent) {
+    // For hex colors, adjust brightness for body gradient
+    // Simple approach: parse hex and darken by percent
+    const num = parseInt(color.replace("#",""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 +
+      (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255))
+      .toString(16).slice(1);
+  }
+
   function init() {
     snake   = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
     dir     = { x: 1, y: 0 };
@@ -395,6 +465,10 @@
     bunnies = [];
     placeBunnies();
     placeFood();
+    // Reset power-up state
+    bunnyPowerUpActive = false;
+    snakeColorOverride = null;
+    speedIndex = 2; // Reset to Normal
   }
 
   function isCellOccupied(pos) {
@@ -436,8 +510,11 @@
     if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) return endGame();
     // Self collision
     if (snake.some(s => s.x === head.x && s.y === head.y)) return endGame();
-    // Bunny collision
-    if (bunnies.some(b => b.x === head.x && b.y === head.y)) return endGame('🐰 You hit a bunny!');
+    // Bunny collision - trigger power-up
+    const bunnyIndex = bunnies.findIndex(b => b.x === head.x && b.y === head.y);
+    if (bunnyIndex !== -1) {
+      activateBunnyPowerUp(bunnyIndex);
+    }
 
     snake.unshift(head);
 
@@ -448,6 +525,23 @@
       placeFood();
     } else {
       snake.pop();
+    }
+
+    // Handle bunny power-up recovery
+    if (bunnyPowerUpActive) {
+      const elapsedTime = Date.now() - bunnyPowerUpStartTime;
+      const progress = Math.min(elapsedTime / bunnyPowerUpDuration, 1);
+
+      if (progress >= 1) {
+        // Power-up expired, return to normal
+        bunnyPowerUpActive = false;
+        snakeColorOverride = null;
+        speedIndex = originalSpeedIndex;
+        applySpeed();
+      } else {
+        // Still in recovery phase, gradually increase speed
+        applySpeedRecovery(progress);
+      }
     }
 
     draw();
@@ -482,9 +576,16 @@
     snake.forEach((seg, i) => {
       const t = i / snake.length;
       const green = Math.round(204 - t * 80);
-      ctx.fillStyle = i === 0 ? '#4ecca3' : `rgb(30, ${green}, 120)`;
+
+      // Use override color if power-up is active, otherwise use default
+      if (snakeColorOverride) {
+        ctx.fillStyle = i === 0 ? snakeColorOverride : adjustColorBrightness(snakeColorOverride, -30);
+      } else {
+        ctx.fillStyle = i === 0 ? '#4ecca3' : `rgb(30, ${green}, 120)`;
+      }
+
       ctx.shadowBlur = i === 0 ? 10 : 0;
-      ctx.shadowColor = '#4ecca3';
+      ctx.shadowColor = snakeColorOverride || '#4ecca3';
       ctx.beginPath();
       ctx.roundRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2, i === 0 ? 5 : 3);
       ctx.fill();
