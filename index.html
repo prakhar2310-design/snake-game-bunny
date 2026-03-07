@@ -231,6 +231,11 @@
         font-size: 0.7rem;
         margin-top: 10px;
       }
+
+      /* Hide grid size picker on mobile */
+      #grid-size-picker {
+        display: none !important;
+      }
     }
 
     /* Hide on larger screens */
@@ -294,7 +299,9 @@
   const CELL = 20;
   let COLS = canvas.width / CELL;
   let ROWS = canvas.height / CELL;
-  let gridSize = 800; // default Large
+
+  // Default to Small grid size on mobile, Large on desktop
+  let gridSize = window.innerWidth <= 768 ? 400 : 800;
 
   // Grid size picker
   const sizeBtns = document.querySelectorAll('.size-btn');
