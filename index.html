@@ -262,7 +262,7 @@
       <p id="overlay-msg">Use arrow keys or WASD to move</p>
       <div class="final-score" id="final-score"></div>
       <div id="grid-size-picker">
-        <button class="size-btn" data-size="400">Small</button>
+        <button class="size-btn" data-size="360">Small</button>
         <button class="size-btn" data-size="600">Medium</button>
         <button class="size-btn active" data-size="800">Large</button>
       </div>
@@ -301,7 +301,7 @@
   let ROWS = canvas.height / CELL;
 
   // Default to Small grid size on mobile, Large on desktop
-  let gridSize = window.innerWidth <= 768 ? 400 : 800;
+  let gridSize = window.innerWidth <= 768 ? 360 : 800;
 
   // Grid size picker
   const sizeBtns = document.querySelectorAll('.size-btn');
