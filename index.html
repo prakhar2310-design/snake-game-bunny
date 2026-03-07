@@ -55,6 +55,7 @@
       border: 2px solid #4ecca3;
       border-radius: 6px;
       box-shadow: 0 0 30px rgba(78, 204, 163, 0.3);
+      touch-action: none;
     }
 
     #overlay {
@@ -677,8 +678,18 @@
     touchStartY = e.touches[0].clientY;
   }, false);
 
+  canvas.addEventListener('touchmove', (e) => {
+    // Prevent scrolling/default behavior while swiping on canvas
+    if (running && !paused) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
   canvas.addEventListener('touchend', (e) => {
     if (!running || paused) return;
+
+    // Prevent default scroll behavior
+    e.preventDefault();
 
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
