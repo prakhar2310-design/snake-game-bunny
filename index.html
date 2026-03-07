@@ -582,7 +582,11 @@
     if (head.x === food.x && head.y === food.y) {
       score++;
       scoreEl.textContent = score;
-      if (score > best) { best = score; bestEl.textContent = best; }
+      if (score > best) {
+        best = score;
+        bestEl.textContent = best;
+        window.isNewHighScore = true;
+      }
       placeFood();
     } else {
       snake.pop();
@@ -677,13 +681,13 @@
       const timeRemaining = Math.max(0, bunnyPowerUpEndTime - now);
       const secondsRemaining = Math.ceil(timeRemaining / 1000);
 
-      ctx.font = 'bold 24px Arial';
+      ctx.font = 'bold 28px Arial';
       ctx.fillStyle = snakeColorOverride || '#4ecca3';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 12;
       ctx.shadowColor = snakeColorOverride || '#4ecca3';
       ctx.textAlign = 'left';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(`⚡ ${secondsRemaining}s`, 12, canvas.height - 12);
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(`⚡ ${secondsRemaining}s`, 15, canvas.height - 20);
       ctx.shadowBlur = 0;
     }
 
@@ -772,8 +776,11 @@
       document.getElementById('grid-size-picker').style.display = 'flex';
     }
 
+    overlay.style.display = 'flex';
+
     // Celebratory confetti for new high score
-    if (score > best) {
+    if (window.isNewHighScore) {
+      window.isNewHighScore = false;
       createConfetti();
       // Keep drawing confetti for a few frames after game ends
       const confettiInterval = setInterval(() => {
@@ -785,8 +792,6 @@
         }
       }, 1000 / 60); // 60 FPS
     }
-
-    overlay.style.display = 'flex';
   }
 
   function startGame() {
