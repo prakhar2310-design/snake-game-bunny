@@ -787,14 +787,11 @@
     // Draw celebratory text during confetti animation
     ctx.save();
 
-    // Fade in/out effect - stays visible longer
-    const fadeInFrames = 20;
-    const fadeOutStart = 200;
+    // Fade in/out effect - starts visible, fades out at the end
+    const fadeOutStart = 240;
     let alpha = 1;
 
-    if (frameNumber < fadeInFrames) {
-      alpha = frameNumber / fadeInFrames;
-    } else if (frameNumber > fadeOutStart) {
+    if (frameNumber > fadeOutStart) {
       alpha = Math.max(0, (300 - frameNumber) / (300 - fadeOutStart));
     }
 
