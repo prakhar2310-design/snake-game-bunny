@@ -776,21 +776,23 @@
       document.getElementById('grid-size-picker').style.display = 'flex';
     }
 
-    overlay.style.display = 'flex';
-
-    // Celebratory confetti for new high score
+    // Celebratory confetti for new high score (draw BEFORE overlay appears)
     if (window.isNewHighScore) {
       window.isNewHighScore = false;
       createConfetti();
-      // Keep drawing confetti for a few frames after game ends
-      const confettiInterval = setInterval(() => {
-        if (!confettiActive) {
-          clearInterval(confettiInterval);
-        } else {
-          updateConfetti();
-          draw();
+      // Draw confetti on canvas before overlay covers it
+      let confettiFrames = 0;
+      const confettiPreInterval = setInterval(() => {
+        updateConfetti();
+        draw();
+        confettiFrames++;
+        if (!confettiActive || confettiFrames > 180) { // 3 seconds at 60 FPS
+          clearInterval(confettiPreInterval);
+          overlay.style.display = 'flex';
         }
       }, 1000 / 60); // 60 FPS
+    } else {
+      overlay.style.display = 'flex';
     }
   }
 
