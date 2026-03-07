@@ -582,7 +582,7 @@
     if (head.x === food.x && head.y === food.y) {
       score++;
       scoreEl.textContent = score;
-      if (score > best) {
+      if (score > best && score > 0) {
         best = score;
         bestEl.textContent = best;
         window.isNewHighScore = true;
