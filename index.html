@@ -392,11 +392,11 @@
     if (isMobile) {
       // Mobile: Scale down based on actual grid size
       const scale = Math.min(gridSize / 360, 1); // Reference size 360px
-      const padding = Math.max(3, Math.round(6 * scale));
-      const paddingX = Math.max(8, Math.round(16 * scale));
-      const fontSize = Math.max(0.7, 1.1 * scale);
-      const gap = Math.max(8, Math.round(12 * scale));
-      const labelFontSize = Math.max(0.75, 0.9 * scale);
+      const padding = Math.max(2, Math.round(4 * scale));
+      const paddingX = Math.max(6, Math.round(10 * scale));
+      const fontSize = Math.max(0.6, 0.9 * scale);
+      const gap = Math.max(6, Math.round(8 * scale));
+      const labelFontSize = Math.max(0.65, 0.75 * scale);
 
       // Apply dynamic styles to buttons
       document.querySelectorAll('.speed-btn').forEach(btn => {
