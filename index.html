@@ -296,12 +296,35 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
 
-  const CELL = 20;
+  let CELL = 20;
   let COLS = canvas.width / CELL;
   let ROWS = canvas.height / CELL;
 
-  // Default to Small grid size on mobile, Large on desktop
-  let gridSize = window.innerWidth <= 768 ? 360 : 800;
+  // Calculate optimal grid size based on viewport
+  function calculateDynamicGridSize() {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Account for UI elements
+    const headerHeight = 180; // Title, score display, controls info
+    const controlsHeight = 120; // Control buttons below grid
+    const padding = 20; // Total padding (left/right combined)
+
+    // Available space for grid
+    const availableWidth = viewportWidth - padding;
+    const availableHeight = viewportHeight - headerHeight - controlsHeight;
+
+    // Grid should be square, use the smaller dimension
+    const maxGridSize = Math.min(availableWidth, availableHeight);
+
+    // Round down to nearest 20 for cleaner sizing
+    const optimalSize = Math.floor(maxGridSize / 20) * 20;
+
+    return Math.max(optimalSize, 200); // Minimum 200x200 to keep game playable
+  }
+
+  // Default to calculated size on mobile, Large on desktop
+  let gridSize = window.innerWidth <= 768 ? calculateDynamicGridSize() : 800;
 
   // Grid size picker
   const sizeBtns = document.querySelectorAll('.size-btn');
@@ -311,6 +334,13 @@
       b.classList.add('active');
       gridSize = parseInt(b.dataset.size);
     });
+  });
+
+  // Recalculate on window resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+      gridSize = calculateDynamicGridSize();
+    }
   });
 
   let snake, dir, nextDir, food, bunnies, score, best, gameLoop, running, paused;
@@ -876,6 +906,12 @@
     // Resize canvas to selected grid size
     canvas.width  = gridSize;
     canvas.height = gridSize;
+
+    // Dynamically adjust CELL size to maintain ~15-20 cells per side
+    // Aim for 18 cells per side (18 * 20 = 360, 18 * 44 = 792 for 800x800)
+    const targetCellsPerSide = 18;
+    CELL = Math.round(gridSize / targetCellsPerSide);
+
     COLS = gridSize / CELL;
     ROWS = gridSize / CELL;
     overlay.style.display = 'none';
