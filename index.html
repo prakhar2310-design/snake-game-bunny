@@ -797,30 +797,38 @@
 
     ctx.globalAlpha = alpha;
 
-    // Draw "WOW!" with strong glow
-    ctx.font = 'bold 90px Arial';
+    // Scale font sizes based on canvas size (responsive for all grid sizes)
+    const baseFontSize = Math.min(canvas.width, canvas.height);
+    const fontSize1 = Math.round(baseFontSize * 0.18); // "WOW!" - larger
+    const fontSize2 = Math.round(baseFontSize * 0.12); // "New High Score!" - medium
+    const fontSize3 = Math.round(baseFontSize * 0.11); // "You are a PRO!" - medium
+    const shadowBlur = Math.max(15, baseFontSize * 0.08);
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+
+    // Draw "WOW!" with strong glow
+    ctx.font = `bold ${fontSize1}px Arial`;
     ctx.fillStyle = '#FFD700';
-    ctx.shadowBlur = 30;
+    ctx.shadowBlur = shadowBlur;
     ctx.shadowColor = '#FFD700';
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
-    ctx.fillText('WOW!', canvas.width / 2, canvas.height / 3 - 20);
+    ctx.fillText('WOW!', canvas.width / 2, canvas.height / 3 - canvas.height * 0.05);
 
     // Draw "New High Score!" with pink glow
-    ctx.font = 'bold 60px Arial';
+    ctx.font = `bold ${fontSize2}px Arial`;
     ctx.fillStyle = '#FF1493';
     ctx.shadowColor = '#FF1493';
-    ctx.shadowBlur = 25;
+    ctx.shadowBlur = Math.max(12, baseFontSize * 0.06);
     ctx.fillText('New High Score!', canvas.width / 2, canvas.height / 2);
 
     // Draw "You are a PRO!" with cyan glow
-    ctx.font = 'bold 55px Arial';
+    ctx.font = `bold ${fontSize3}px Arial`;
     ctx.fillStyle = '#00FFFF';
     ctx.shadowColor = '#00FFFF';
-    ctx.shadowBlur = 25;
-    ctx.fillText('You are a PRO!', canvas.width / 2, canvas.height * 2/3 + 20);
+    ctx.shadowBlur = Math.max(12, baseFontSize * 0.06);
+    ctx.fillText('You are a PRO!', canvas.width / 2, canvas.height * 2/3 + canvas.height * 0.05);
 
     ctx.restore();
   }
