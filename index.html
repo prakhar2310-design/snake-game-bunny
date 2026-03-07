@@ -481,7 +481,7 @@
         x: launchX,
         y: launchY,
         vx: (Math.random() - 0.5) * 12, // Increased horizontal velocity
-        vy: Math.random() * 8 + 2, // Wider range, including slower pieces
+        vy: Math.random() * 4 + 1, // 50% slower fall (was 8 + 2)
         color: colors[Math.floor(Math.random() * colors.length)],
         size: Math.random() * 12 + 8, // Larger pieces (8-20px)
         rotation: Math.random() * Math.PI * 2,
@@ -497,7 +497,7 @@
     confettiPieces = confettiPieces.filter(piece => {
       piece.y += piece.vy;
       piece.vx *= 0.96; // Slightly more air resistance for better spread
-      piece.vy += 0.25; // Slightly increased gravity for more dramatic fall
+      piece.vy += 0.125; // 50% less gravity for slower, more graceful fall
       piece.rotation += piece.rotationSpeed;
       piece.life -= piece.decay;
       return piece.life > 0;
@@ -783,6 +783,51 @@
     ctx.restore();
   }
 
+  function drawCelebrationText(frameNumber) {
+    // Draw celebratory text during confetti animation
+    ctx.save();
+
+    // Fade in/out effect - stays visible longer
+    const fadeInFrames = 20;
+    const fadeOutStart = 200;
+    let alpha = 1;
+
+    if (frameNumber < fadeInFrames) {
+      alpha = frameNumber / fadeInFrames;
+    } else if (frameNumber > fadeOutStart) {
+      alpha = Math.max(0, (300 - frameNumber) / (300 - fadeOutStart));
+    }
+
+    ctx.globalAlpha = alpha;
+
+    // Draw "WOW!" with strong glow
+    ctx.font = 'bold 90px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFD700';
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.fillText('WOW!', canvas.width / 2, canvas.height / 3 - 20);
+
+    // Draw "New High Score!" with pink glow
+    ctx.font = 'bold 60px Arial';
+    ctx.fillStyle = '#FF1493';
+    ctx.shadowColor = '#FF1493';
+    ctx.shadowBlur = 25;
+    ctx.fillText('New High Score!', canvas.width / 2, canvas.height / 2);
+
+    // Draw "You are a PRO!" with cyan glow
+    ctx.font = 'bold 55px Arial';
+    ctx.fillStyle = '#00FFFF';
+    ctx.shadowColor = '#00FFFF';
+    ctx.shadowBlur = 25;
+    ctx.fillText('You are a PRO!', canvas.width / 2, canvas.height * 2/3 + 20);
+
+    ctx.restore();
+  }
+
   function endGame(reason = 'Game Over') {
     clearInterval(gameLoop);
     running = false;
@@ -807,6 +852,8 @@
       const confettiPreInterval = setInterval(() => {
         updateConfetti();
         draw();
+        drawConfetti();
+        drawCelebrationText(confettiFrames);
         confettiFrames++;
         if (!confettiActive || confettiFrames > 300) { // 5 seconds at 60 FPS for more visible celebration
           clearInterval(confettiPreInterval);
