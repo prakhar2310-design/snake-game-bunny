@@ -563,6 +563,8 @@
   function endGame(reason = 'Game Over') {
     clearInterval(gameLoop);
     running = false;
+    // Re-enable page scrolling
+    document.body.style.overflow = '';
     overlayT.textContent = reason;
     overlayM.textContent = 'Your score:';
     finalS.textContent = score;
@@ -573,6 +575,8 @@
   }
 
   function startGame() {
+    // Disable page scrolling during gameplay
+    document.body.style.overflow = 'hidden';
     // Resize canvas to selected grid size
     canvas.width  = gridSize;
     canvas.height = gridSize;
@@ -601,6 +605,8 @@
       if (!running) return;
       paused = !paused;
       if (paused) {
+        // Allow scrolling when paused
+        document.body.style.overflow = '';
         overlayT.textContent = 'Paused';
         overlayM.textContent = 'Press Esc to resume';
         finalS.textContent = '';
@@ -608,6 +614,8 @@
         document.getElementById('grid-size-picker').style.display = 'none';
         overlay.style.display = 'flex';
       } else {
+        // Disable scrolling when resuming
+        document.body.style.overflow = 'hidden';
         overlay.style.display = 'none';
         btn.style.display = '';
         document.getElementById('grid-size-picker').style.display = 'flex';
