@@ -313,13 +313,14 @@
 
   // Calculate optimal grid size based on viewport
   function calculateDynamicGridSize() {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    // Use clientWidth/clientHeight for actual visible viewport (fixes Android Chrome issues)
+    const viewportWidth = Math.min(window.innerWidth, document.documentElement.clientWidth);
+    const viewportHeight = Math.min(window.innerHeight, document.documentElement.clientHeight);
 
     // Account for UI elements
     const headerHeight = 180; // Title, score display, controls info
     const controlsHeight = 120; // Control buttons below grid
-    const padding = 20; // Total padding (left/right combined)
+    const padding = 30; // Total padding (10px left + 10px right + 10px safety margin on each side)
 
     // Available space for grid
     const availableWidth = viewportWidth - padding;
