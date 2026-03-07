@@ -325,6 +325,10 @@
   let originalSpeedIndex = 2; // Store original speed
   let snakeColorOverride = null; // Store override color
 
+  // Confetti animation state
+  let confettiPieces = [];
+  let confettiActive = false;
+
   const scoreEl    = document.getElementById('score');
   const bestEl     = document.getElementById('best');
   const overlay    = document.getElementById('overlay');
@@ -464,6 +468,52 @@
       .toString(16).slice(1);
   }
 
+  function createConfetti() {
+    confettiPieces = [];
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#A8D8EA'];
+    for (let i = 0; i < 50; i++) {
+      confettiPieces.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * 6 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 8 + 4,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.1,
+        life: 1,
+        decay: Math.random() * 0.01 + 0.008
+      });
+    }
+    confettiActive = true;
+  }
+
+  function updateConfetti() {
+    confettiPieces = confettiPieces.filter(piece => {
+      piece.y += piece.vy;
+      piece.vx *= 0.98; // Air resistance
+      piece.vy += 0.2; // Gravity
+      piece.rotation += piece.rotationSpeed;
+      piece.life -= piece.decay;
+      return piece.life > 0;
+    });
+    if (confettiPieces.length === 0) {
+      confettiActive = false;
+    }
+  }
+
+  function drawConfetti() {
+    confettiPieces.forEach(piece => {
+      ctx.save();
+      ctx.globalAlpha = piece.life;
+      ctx.translate(piece.x, piece.y);
+      ctx.rotate(piece.rotation);
+      ctx.fillStyle = piece.color;
+      ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+      ctx.restore();
+    });
+  }
+
   function init() {
     snake   = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
     dir     = { x: 1, y: 0 };
@@ -557,6 +607,11 @@
       }
     }
 
+    // Update confetti animation
+    if (confettiActive) {
+      updateConfetti();
+    }
+
     draw();
   }
 
@@ -620,7 +675,7 @@
     if (bunnyPowerUpActive) {
       const now = Date.now();
       const timeRemaining = Math.max(0, bunnyPowerUpEndTime - now);
-      const secondsRemaining = (timeRemaining / 1000).toFixed(1);
+      const secondsRemaining = Math.ceil(timeRemaining / 1000);
 
       ctx.font = 'bold 24px Arial';
       ctx.fillStyle = snakeColorOverride || '#4ecca3';
@@ -630,6 +685,11 @@
       ctx.textBaseline = 'bottom';
       ctx.fillText(`⚡ ${secondsRemaining}s`, 12, canvas.height - 12);
       ctx.shadowBlur = 0;
+    }
+
+    // Draw confetti if active
+    if (confettiActive) {
+      drawConfetti();
     }
   }
 
@@ -711,6 +771,21 @@
     if (window.innerWidth > 768) {
       document.getElementById('grid-size-picker').style.display = 'flex';
     }
+
+    // Celebratory confetti for new high score
+    if (score > best) {
+      createConfetti();
+      // Keep drawing confetti for a few frames after game ends
+      const confettiInterval = setInterval(() => {
+        if (!confettiActive) {
+          clearInterval(confettiInterval);
+        } else {
+          updateConfetti();
+          draw();
+        }
+      }, 1000 / 60); // 60 FPS
+    }
+
     overlay.style.display = 'flex';
   }
 
