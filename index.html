@@ -380,11 +380,46 @@
     }
   }
 
-  // Set initial instruction text
-  updateInstructionText();
+  // Dynamically adjust control button sizes based on grid size
+  function adjustControlButtonSizes() {
+    const speedControls = document.getElementById('speed-controls');
+    const speedLabel = document.getElementById('speed-label');
+    const bunnyLabel = document.getElementById('bunny-label');
 
-  // Update instruction text when window resizes
-  window.addEventListener('resize', updateInstructionText);
+    // Scale controls based on grid size
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      // Mobile: Scale down based on actual grid size
+      const scale = Math.min(gridSize / 360, 1); // Reference size 360px
+      const padding = Math.max(3, Math.round(6 * scale));
+      const paddingX = Math.max(8, Math.round(16 * scale));
+      const fontSize = Math.max(0.7, 1.1 * scale);
+      const gap = Math.max(8, Math.round(12 * scale));
+      const labelFontSize = Math.max(0.75, 0.9 * scale);
+
+      // Apply dynamic styles to buttons
+      document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.style.padding = `${padding}px ${paddingX}px`;
+        btn.style.fontSize = `${fontSize}rem`;
+      });
+
+      // Apply dynamic styles to labels
+      speedControls.style.gap = `${gap}px`;
+      speedLabel.style.fontSize = `${labelFontSize}rem`;
+      bunnyLabel.style.fontSize = `${labelFontSize}rem`;
+    }
+  }
+
+  // Set initial instruction text and adjust buttons
+  updateInstructionText();
+  adjustControlButtonSizes();
+
+  // Update instruction text and button sizes when window resizes
+  window.addEventListener('resize', () => {
+    updateInstructionText();
+    adjustControlButtonSizes();
+  });
 
   best = 0;
 
