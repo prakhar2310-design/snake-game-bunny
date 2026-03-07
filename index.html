@@ -470,19 +470,24 @@
 
   function createConfetti() {
     confettiPieces = [];
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#A8D8EA'];
-    for (let i = 0; i < 50; i++) {
+    // More vibrant colors for celebratory effect
+    const colors = ['#FF0080', '#FF6B6B', '#FF4500', '#4ECDC4', '#00FFFF', '#FFE66D', '#FFD700', '#FF1493', '#AA96DA', '#FF69B4', '#00FF00', '#00CED1'];
+    for (let i = 0; i < 100; i++) {
+      // More variation in launch positions (spread across top half)
+      const launchX = Math.random() * canvas.width;
+      const launchY = canvas.height * 0.3 - Math.random() * canvas.height * 0.2;
+
       confettiPieces.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        vx: (Math.random() - 0.5) * 8,
-        vy: Math.random() * 6 + 4,
+        x: launchX,
+        y: launchY,
+        vx: (Math.random() - 0.5) * 12, // Increased horizontal velocity
+        vy: Math.random() * 8 + 2, // Wider range, including slower pieces
         color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.random() * 8 + 4,
+        size: Math.random() * 12 + 8, // Larger pieces (8-20px)
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
+        rotationSpeed: (Math.random() - 0.5) * 0.2, // Faster rotation
         life: 1,
-        decay: Math.random() * 0.01 + 0.008
+        decay: Math.random() * 0.008 + 0.004 // Slower decay for longer visibility
       });
     }
     confettiActive = true;
@@ -491,8 +496,8 @@
   function updateConfetti() {
     confettiPieces = confettiPieces.filter(piece => {
       piece.y += piece.vy;
-      piece.vx *= 0.98; // Air resistance
-      piece.vy += 0.2; // Gravity
+      piece.vx *= 0.96; // Slightly more air resistance for better spread
+      piece.vy += 0.25; // Slightly increased gravity for more dramatic fall
       piece.rotation += piece.rotationSpeed;
       piece.life -= piece.decay;
       return piece.life > 0;
@@ -503,13 +508,30 @@
   }
 
   function drawConfetti() {
-    confettiPieces.forEach(piece => {
+    confettiPieces.forEach((piece, index) => {
       ctx.save();
       ctx.globalAlpha = piece.life;
       ctx.translate(piece.x, piece.y);
       ctx.rotate(piece.rotation);
       ctx.fillStyle = piece.color;
-      ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+
+      // Add a subtle glow for larger pieces
+      if (piece.size > 12) {
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = piece.color;
+      }
+
+      // Alternate between squares and circles for visual variety
+      if (index % 3 === 0) {
+        // Draw as circle
+        ctx.beginPath();
+        ctx.arc(0, 0, piece.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Draw as square
+        ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+      }
+
       ctx.restore();
     });
   }
@@ -786,7 +808,7 @@
         updateConfetti();
         draw();
         confettiFrames++;
-        if (!confettiActive || confettiFrames > 180) { // 3 seconds at 60 FPS
+        if (!confettiActive || confettiFrames > 300) { // 5 seconds at 60 FPS for more visible celebration
           clearInterval(confettiPreInterval);
           overlay.style.display = 'flex';
         }
