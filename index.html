@@ -192,52 +192,7 @@
       box-shadow: 0 0 10px rgba(78, 204, 163, 0.4);
     }
 
-    /* Touch Controls for Mobile */
-    #touch-controls {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-top: 20px;
-    }
-
-    .dpad-button {
-      width: 50px;
-      height: 50px;
-      border: 2px solid #4ecca3;
-      background: rgba(78, 204, 163, 0.1);
-      color: #4ecca3;
-      border-radius: 8px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-    }
-
-    .dpad-button:active {
-      background: #4ecca3;
-      color: #1a1a2e;
-      transform: scale(0.95);
-      box-shadow: 0 0 15px rgba(78, 204, 163, 0.5);
-    }
-
-    .dpad-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    /* Show touch controls on mobile devices */
     @media (max-width: 768px) {
-      #touch-controls {
-        display: flex;
-      }
-
       #controls {
         font-size: 0.7rem;
         margin-top: 10px;
@@ -245,13 +200,6 @@
 
       /* Hide grid size picker on mobile */
       #grid-size-picker {
-        display: none !important;
-      }
-    }
-
-    /* Hide on larger screens */
-    @media (min-width: 769px) {
-      #touch-controls {
         display: none !important;
       }
     }
@@ -293,16 +241,6 @@
 
   <div id="controls">Arrow Keys / WASD to move &nbsp;|&nbsp; O / P — speed &nbsp;|&nbsp; J / K — bunnies &nbsp;|&nbsp; Esc — pause</div>
 
-  <!-- Touch Controls for Mobile Devices -->
-  <div id="touch-controls">
-    <button class="dpad-button dpad-up" data-direction='{"x":0,"y":-1}' title="Up">↑</button>
-    <div class="dpad-row">
-      <button class="dpad-button dpad-left" data-direction='{"x":-1,"y":0}' title="Left">←</button>
-      <button class="dpad-button dpad-right" data-direction='{"x":1,"y":0}' title="Right">→</button>
-    </div>
-    <button class="dpad-button dpad-down" data-direction='{"x":0,"y":1}' title="Down">↓</button>
-  </div>
-
 <script>
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
@@ -319,7 +257,7 @@
 
     // Account for UI elements
     const headerHeight = 180; // Title, score display, controls info
-    const controlsHeight = 120; // Control buttons below grid
+    const controlsHeight = 60; // Control buttons below grid (reduced from 120, removed D-pad)
     const padding = 30; // Total padding (10px left + 10px right + 10px safety margin on each side)
 
     // Available space for grid
@@ -386,7 +324,7 @@
   function updateInstructionText() {
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
-      overlayM.textContent = 'Use swipe or D-pad buttons to move';
+      overlayM.textContent = 'Use swipe to move';
     } else {
       overlayM.textContent = 'Use arrow keys or WASD to move';
     }
@@ -1042,35 +980,6 @@
     // Prevent reversing
     if (newDir.x === -dir.x && newDir.y === -dir.y) return;
     nextDir = newDir;
-  });
-
-  // Touch Controls for Mobile
-  // Handle on-screen button touches
-  const dpadButtons = document.querySelectorAll('.dpad-button');
-  dpadButtons.forEach(button => {
-    button.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      if (!running || paused) return;
-
-      const directionData = button.dataset.direction;
-      const newDir = JSON.parse(directionData);
-
-      // Prevent reversing (same logic as keyboard)
-      if (newDir.x === -dir.x && newDir.y === -dir.y) return;
-      nextDir = newDir;
-    });
-
-    // Also support mouse clicks for testing on desktop
-    button.addEventListener('click', (e) => {
-      if (!running || paused) return;
-
-      const directionData = button.dataset.direction;
-      const newDir = JSON.parse(directionData);
-
-      // Prevent reversing
-      if (newDir.x === -dir.x && newDir.y === -dir.y) return;
-      nextDir = newDir;
-    });
   });
 
   // Swipe gesture detection on canvas
