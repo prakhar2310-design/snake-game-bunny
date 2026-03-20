@@ -249,23 +249,31 @@
   let COLS = canvas.width / CELL;
   let ROWS = canvas.height / CELL;
 
-  // Calculate optimal grid dimensions based on viewport (returns {width, height} for mobile rectangle)
+  // Calculate optimal grid dimensions based on actual rendered element heights
   function calculateDynamicGridSize() {
-    // Use clientWidth/clientHeight for actual visible viewport (fixes Android Chrome issues)
     const viewportWidth = Math.min(window.innerWidth, document.documentElement.clientWidth);
     const viewportHeight = Math.min(window.innerHeight, document.documentElement.clientHeight);
 
-    // Account for UI elements
-    const headerHeight = 180; // Title, score display, controls info
-    const controlsHeight = 60; // Control buttons below grid
-    const padding = 30; // Total horizontal padding
+    // Measure actual heights of elements above and below the canvas
+    const h1El       = document.querySelector('h1');
+    const scoreEl2   = document.getElementById('scoreboard');
+    const speedEl    = document.getElementById('speed-controls');
+    const controlsEl = document.getElementById('controls');
 
-    // Use full available width AND height separately for a rectangle
-    const availableWidth = viewportWidth - padding;
-    const availableHeight = viewportHeight - headerHeight - controlsHeight;
+    function elHeight(el) {
+      if (!el) return 0;
+      const s = getComputedStyle(el);
+      return el.offsetHeight + parseFloat(s.marginTop) + parseFloat(s.marginBottom);
+    }
 
-    // Round down to nearest 20 for cleaner cell sizing
-    const w = Math.max(Math.floor(availableWidth / 20) * 20, 200);
+    const aboveCanvas  = elHeight(h1El) + elHeight(scoreEl2);
+    const belowCanvas  = elHeight(speedEl) + elHeight(controlsEl);
+    const padding = 30; // horizontal padding only
+
+    const availableWidth  = viewportWidth - padding;
+    const availableHeight = viewportHeight - aboveCanvas - belowCanvas - 10; // 10px safety
+
+    const w = Math.max(Math.floor(availableWidth  / 20) * 20, 200);
     const h = Math.max(Math.floor(availableHeight / 20) * 20, 200);
 
     return { width: w, height: h };
